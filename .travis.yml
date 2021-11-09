@@ -15,7 +15,21 @@ before_install:
 jobs:
   include:
     - stage: integration tests
-      script: docker-compose -f result/docker-compose.test.yml run sut
+      script: 
+        - "echo '================ Integration Test started ================'"
+        - docker-compose -f result/docker-compose.test.yml run sut
 
-after_success:
-  - echo "================ All passed! ================"
+before_deploy: "echo '================ Ready for deploy ================'"
+  
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-1"
+  app: "voting-app"
+  env: "Votingapp-env"
+  bucket_name: "elasticbeanstalk-us-east-1-615572604844"
+  bucket_path: "VotingApp"
+  on:
+      repo: TravisC618/example-voting-app
+      branch: master
+  access_key_id: "$AWS_ACCESS_KEY"
+  secret_access_key: "$AWS_SECRET_KEY"
