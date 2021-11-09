@@ -6,6 +6,7 @@ env:
 services:
   - docker
 
+### update docker compose version
 before_install:
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
@@ -19,7 +20,14 @@ jobs:
         - "echo '================ Integration Test started ================'"
         - docker-compose -f result/docker-compose.test.yml run sut
 
-before_deploy: "echo '================ Ready for deploy ================'"
+### if tests are all passed, push image before deploying
+### require the branch name to be master
+after_success:
+  - test $TRAVIS_BRANCH = "master" && 
+    docker login -u $DOCKER_USERNAME -p $DOCKER_PWD &&
+    docker-compose build --pull &&
+    docker-compose push &&
+    docker logout
   
 deploy:
   provider: elasticbeanstalk
