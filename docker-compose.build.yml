@@ -4,7 +4,7 @@
 
 services:
     vote:
-        image: travisccc/voting-app-vote:latest
+        build: ./vote
         depends_on:
             redis:
                 condition: service_healthy
@@ -17,7 +17,7 @@ services:
             - back-tier
 
     result:
-        image: travisccc/voting-app-result:latest
+        build: ./result
         depends_on:
             db:
                 condition: service_healthy
@@ -31,7 +31,8 @@ services:
             - back-tier
 
     worker:
-        image: travisccc/voting-app-worker:latest
+        build:
+            context: ./worker
         depends_on:
             redis:
                 condition: service_healthy

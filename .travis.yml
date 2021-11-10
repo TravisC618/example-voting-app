@@ -27,11 +27,16 @@ jobs:
 ### if tests are all passed, push image before deploying
 ### require the branch name to be master
 after_success:
-  - test $TRAVIS_BRANCH = "master" && 
-    docker login -u $DOCKER_USERNAME -p $DOCKER_PWD &&
-    docker-compose build --pull &&
-    docker-compose push &&
-    docker logout
+  - if [[ "$TRAVIS_BRANCH" == "master" ]]; 
+    then
+      echo "================ Ready for doocker-compose push ================" ;
+      docker login -u $DOCKER_USERNAME -p $DOCKER_PWD ;
+      docker-compose -f docker-compose.build.yml build ;
+      docker-compose push ;
+      docker logout ;
+    else
+      echo "================ Not master branch, no need to push image ================" ;
+    fi
   
 deploy:
   provider: elasticbeanstalk
